@@ -95,8 +95,8 @@ get_data = PythonOperator(
     dag = dag
     )
 
-data_store = PythonOperator(
-    task_id = 'data_store',
-    python_callable = data_store(),
-    dag = dag
-)
+# data_store = PythonOperator(
+#     task_id = 'data_store',
+#     python_callable = data_store(),
+#     dag = dag
+# )
