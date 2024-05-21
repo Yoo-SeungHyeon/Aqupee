@@ -50,10 +50,12 @@ def mean_cul(item, result_m):
         temp = float(item.find("avgTa").get_text())
         ground_temp = float(item.find("avgTs").get_text())
     except ValueError:
-        temp = float(item.find("maxTa").get_text()) - float(
-            item.find("minTa").get_text()
-        )
+        temp = 0
         ground_temp = 0
+        if "error" in result_m:
+            result_m["error"] = result_m["error"] + 1
+        else:
+            result_m["error"] = 1
 
     result_m["stnid"] = STNID
     result_m["stnnm"] = STNNM
@@ -116,8 +118,13 @@ def data_calling(day, id, month_result):
             result_m = mean_cul(item, result_m)
 
         else:
-            m_temp = result_m["t_total"] / result_m["cnt"]
-            m_gtemp = result_m["gt_total"] / result_m["cnt"]
+            if "error" in result_m:
+                count = result_m["cnt"] - result_m["error"]
+            else:
+                count = result_m["cnt"]
+
+            m_temp = result_m["t_total"] / count
+            m_gtemp = result_m["gt_total"] / count
             month_result.append(
                 parse_month(
                     months[0],
@@ -133,8 +140,14 @@ def data_calling(day, id, month_result):
             # result_m = init(result_m)
             result_m = mean_cul(item, result_m)
 
-    m_temp = result_m["t_total"] / result_m["cnt"]
-    m_gtemp = result_m["gt_total"] / result_m["cnt"]
+    if "error" in result_m:
+        count = result_m["cnt"] - result_m["error"]
+    else:
+        count = result_m["cnt"]
+
+    m_temp = result_m["t_total"] / count
+    m_gtemp = result_m["gt_total"] / count
+
     month_result.append(
         parse_month(
             months[0], month, result_m["stnid"], result_m["stnnm"], m_temp, m_gtemp
