@@ -147,3 +147,8 @@ print(df)
 
 # csv 파일로 저장하기
 df.to_csv("output.csv", index=False)
+
+
+import sqlite3
+
+conn = sqlite3.connect("")
