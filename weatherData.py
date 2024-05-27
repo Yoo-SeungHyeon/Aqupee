@@ -99,62 +99,75 @@ def data_calling(day, id, month_result):
 
     soup = BeautifulSoup(response.content, features="xml")
     # pprint.pprint(soup.text)
-    items = soup.find_all("item")
+    header = soup.find("header")
+    if header is None:
+        return month_result
 
-    if items is None:
-        print("nothing in items")
+    result_Msg = header.find("resultMsg").get_text()
 
-    month = "01"
+    if result_Msg == "NORMAL_SERVICE":
 
-    result_m = {}
-    # result_m = init(result_m)
+        items = soup.find_all("item")
 
-    for item in items:
-        TM = item.find("tm").get_text()
+        if items is None:
+            print("nothing in items")
+            return month_result
 
-        months = TM.split("-")
+        month = "01"
 
-        if month == months[1]:
-            result_m = mean_cul(item, result_m)
+        result_m = {}
+        # result_m = init(result_m)
 
-        else:
-            if "error" in result_m:
-                count = result_m["cnt"] - result_m["error"]
+        for item in items:
+            TM = item.find("tm").get_text()
+
+            months = TM.split("-")
+
+            if month == months[1]:
+                result_m = mean_cul(item, result_m)
+
             else:
-                count = result_m["cnt"]
+                if "error" in result_m:
+                    count = result_m["cnt"] - result_m["error"]
+                else:
+                    count = result_m["cnt"]
 
-            m_temp = result_m["t_total"] / count
-            m_gtemp = result_m["gt_total"] / count
-            month_result.append(
-                parse_month(
-                    months[0],
-                    month,
-                    result_m["stnid"],
-                    result_m["stnnm"],
-                    m_temp,
-                    m_gtemp,
+                m_temp = result_m["t_total"] / count
+                m_gtemp = result_m["gt_total"] / count
+                month_result.append(
+                    parse_month(
+                        months[0],
+                        month,
+                        result_m["stnid"],
+                        result_m["stnnm"],
+                        m_temp,
+                        m_gtemp,
+                    )
                 )
+                month = months[1]
+                result_m = {}
+                # result_m = init(result_m)
+                result_m = mean_cul(item, result_m)
+
+        if "error" in result_m:
+            count = result_m["cnt"] - result_m["error"]
+        else:
+            count = result_m["cnt"]
+
+        m_temp = result_m["t_total"] / count
+        m_gtemp = result_m["gt_total"] / count
+
+        month_result.append(
+            parse_month(
+                months[0], month, result_m["stnid"], result_m["stnnm"], m_temp, m_gtemp
             )
-            month = months[1]
-            result_m = {}
-            # result_m = init(result_m)
-            result_m = mean_cul(item, result_m)
-
-    if "error" in result_m:
-        count = result_m["cnt"] - result_m["error"]
-    else:
-        count = result_m["cnt"]
-
-    m_temp = result_m["t_total"] / count
-    m_gtemp = result_m["gt_total"] / count
-
-    month_result.append(
-        parse_month(
-            months[0], month, result_m["stnid"], result_m["stnnm"], m_temp, m_gtemp
         )
-    )
 
-    return month_result
+        return month_result
+
+    else:
+        print(f"{id}, ")
+        return month_result
 
 
 # year_result = []
@@ -171,7 +184,33 @@ date_list = [
     "2022-01-01",
     "2023-01-01",
 ]
-id_list = ["127"]
+id_list = [
+    127,
+    129,
+    130,
+    131,
+    133,
+    135,
+    136,
+    137,
+    138,
+    140,
+    # 177,
+    226,
+    232,
+    235,
+    236,
+    238,
+    # 239,
+    271,
+    272,
+    273,
+    276,
+    277,
+    278,
+    279,
+]
+
 
 for date in date_list:
     for id in id_list:

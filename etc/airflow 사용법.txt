@@ -1,0 +1,38 @@
+apache/airflow 라는 이미지도 있지만 옵션을 알고 이해하기 어려워 그냥 python 이미지를 응용하기로 결정
+
+# python 컨테이너 띄우고 접속
+docker run -d -it --name=airflow -p 8080:8080 python
+docker exec -it airflow /bin/bash
+
+# 필수 항목 업데이트
+apt-get update
+
+# airflow 설치
+pip install apache-airflow
+
+# 환경변수 설정
+export AIRFLOW_HOME=~/airflow
+
+# airflow 폴더 생성까지 시간이 좀 걸림. 주의%^&*
+# airflow 세팅
+cd ~/airflow
+airflow db init
+airflow users create --username admin --password admin --firstname SeungHyeon --lastname Yoo --role Admin --email effort-result@naver.com
+mkdir dags
+
+# 로컬에서 작성한 파일 이동
+다른 터미널에서
+docker cp apitest.py airflow:/root/airflow/dags/
+
+# airflow webserver 실행
+기존 터미널에서
+airflow webserver
+
+# webserver를 실행시키면 그 터미널은 잠기기 때문에 airflow scheduler는 다른 터미널에서 실행해야함
+다른 터미널에서
+docker exec -it airflow /bin/bash
+cd /root/airflow
+airflow scheduler
+
+웹 브라우저에 
+localhost:8080
